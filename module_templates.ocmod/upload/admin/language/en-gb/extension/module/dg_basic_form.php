@@ -7,9 +7,15 @@ $_['text_home']         = 'Home';
 $_['text_extension']    = 'Extension';
 
 // Entry
-$_['entry_name']       = 'Όνομα Module';
-$_['entry_status']     = 'Κατάσταση';
+$_['entry_name']        = 'Module Name';
+$_['entry_status']      = 'Status';
+$_['entry_checkbox']    = 'Checkbox';
+$_['entry_category']    = 'Category';
+$_['entry_image']       = 'Image';
+$_['entry_sort_order']   = 'Sort Order';
 
 // Error
 $_['error_permission']  = 'Warning: You do not have permission to modify the Basic Form!';
-$_['error_name']       = 'Το όνομα module πρέπει να είναι από 3 έως 64 χαρακτήρες!';
+$_['error_name']        = "The module's name must be from 3 to 64 characters long!";
+$_['error_category']    = "This category does not exist!";
+$_['error_sort_order']    = "Invalid sort order!";
