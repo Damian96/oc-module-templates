@@ -46,6 +46,12 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$data['error_category'] = '';
 		}
 
+		if (isset($this->error['manufacturer'])) {
+			$data['error_manufacturer'] = $this->error['manufacturer'];
+		} else {
+			$data['error_manufacturer'] = '';
+		}
+
 		if (isset($this->error['sort_order'])) {
 			$data['error_sort_order'] = $this->error['sort_order'];
 		} else {
@@ -105,6 +111,7 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$data['checkbox'] = '0';
 		}
 
+		// Category Autocomplete
 		if (isset($this->request->post['path'])) {
 			$data['path'] = $this->request->post['path'];
 		} else if (!empty($module_info)) {
@@ -118,6 +125,22 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$data['category'] = $module_info['category'];
 		} else {
 			$data['category'] = 0;
+		}
+
+		// Manufacturer Autocomplete
+		if (isset($this->request->post['manufacturer'])) {
+			$data['manufacturer'] = $this->request->post['manufacturer'];
+		} else if (!empty($module_info)) {
+			$data['manufacturer'] = $module_info['manufacturer'];
+		} else {
+			$data['manufacturer'] = 0;
+		}
+		if (isset($this->request->post['man_id'])) {
+			$data['man_id'] = $this->request->post['man_id'];
+		} else if (!empty($module_info)) {
+			$data['man_id'] = $module_info['man_id'];
+		} else {
+			$data['man_id'] = 0;
 		}
 
 		// Image
@@ -153,6 +176,7 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
     protected function validate() {
 		// echo '<pre>'; var_dump($this->request->post); echo '</pre>';
 		$this->load->model('catalog/category');
+		$this->load->model('catalog/manufacturer');
 
 		if (!$this->user->hasPermission('modify', 'extension/module/' . $this->name)) {
 			$this->error['warning'] = $this->language->get('error_permission');
@@ -163,8 +187,12 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$this->error['name'] = $this->language->get('error_name');
 		}
 
-		if (intval($this->request->post['category']) > 0 && empty($this->model_catalog_category->getCategory(intval($this->request->post['category'])))) {
+		if (intval($this->request->post['category']) <= 0 && empty($this->model_catalog_category->getCategory(intval($this->request->post['category'])))) {
 			$this->error['category'] = $this->language->get('error_category');
+		}
+
+		if (intval($this->request->post['man_id']) <= 0 && empty($this->model_catalog_manufacturer->getManufacturer(intval($this->request->post['man_id'])))) {
+			$this->error['manufacturer'] = $this->language->get('error_manufacturer');
 		}
 
 		if (intval($this->request->post['sort_order']) < 0) {

@@ -28,8 +28,12 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module"
           class="form-horizontal">
+          <!-- Module Name -->
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-name">{{ entry_name }}</label>
+            <!-- Label with tooltip -->
+            <label class="col-sm-2 control-label" for="input-name">
+              <span data-toggle="tooltip" title="" data-original-title="{{ tooltip_name }}">{{ entry_name }}</span>
+            </label>
             <div class="col-sm-10">
               <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name"
                 class="form-control" />
@@ -39,16 +43,19 @@
             </div>
           </div>
           <div class="form-group">
+            <!-- Simple Input / Checkbox -->
             <label class="col-sm-2 control-label" for="input-checkbox">{{ entry_checkbox }}</label>
             <div class="col-sm-10">
-              <input type="checkbox" name="checkbox" value="{{ checkbox }}" {{ checkbox == 'on' ? ' checked' : '' }} placeholder="{{ entry_checkbox }}"
-                id="input-checkbox" class="form-control" onclick="this.value = this.checked ? 'on' : 'off';" />
+              <input type="checkbox" name="checkbox" value="{{ checkbox }}" {{ checkbox == 'on' ? ' checked' : '' }}
+                placeholder="{{ entry_checkbox }}" id="input-checkbox" class="form-control"
+                onclick="this.value = this.checked ? 'on' : 'off';" />
               {% if error_checkbox %}
               <div class="text-danger">{{ error_checkbox }}</div>
               {% endif %}
             </div>
           </div>
           <div class="form-group">
+            <!-- Category Autocomplete -->
             <label class="col-sm-2 control-label" for="input-parent">{{ entry_category }}</label>
             <div class="col-sm-10">
               <input type="text" name="path" value="{{ path }}" placeholder="{{ entry_category }}" id="input-parent"
@@ -60,6 +67,19 @@
             </div>
           </div>
           <div class="form-group">
+            <!-- Manufacturer Autocomplete -->
+            <label class="col-sm-2 control-label" for="input-parent">{{ entry_manufacturer }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="manufacturer" value="{{ manufacturer }}" placeholder="{{ entry_manufacturer }}"
+                id="input-parent" class="form-control" />
+              <input type="hidden" name="man_id" value="{{ man_id }}" />
+              {% if error_manufacturer %}
+              <div class="text-danger">{{ error_manufacturer }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- Single Image Picker -->
             <label class="col-sm-2 control-label">{{ entry_image }}</label>
             <div class="col-sm-10"><a href="" id="thumb-image" data-toggle="image" class="img-thumbnail"><img
                   src="{{ thumb }}" alt="" title="" data-placeholder="{{ placeholder }}" /></a>
@@ -67,10 +87,11 @@
             </div>
           </div>
           <div class="form-group">
+            <!-- Sort Order -->
             <label class="col-sm-2 control-label" for="input-sortorder">{{ entry_sort_order }}</label>
             <div class="col-sm-10">
-              <input type="number" min="0" max="10000" name="sort_order" value="{{ sort_order }}" placeholder="{{ entry_sort_order }}"
-                id="input-sortorder" class="form-control" required />
+              <input type="text" name="sort_order" value="{{ sort_order ?? '0' }}" placeholder="{{ entry_sort_order }}"
+                id="input-sortorder" class="form-control" required pattern="\d{0,3}" />
               {% if error_sort_order %}
               <div class="text-danger">{{ error_sort_order }}</div>
               {% endif %}
@@ -120,6 +141,32 @@
     'select': function (item) {
       $('input[name=\'path\']').val(item['label']);
       $('input[name=\'category\']').val(item['value']);
+    }
+  });
+  $('input[name=\'manufacturer\']').autocomplete({
+    'source': function (request, response) {
+      $.ajax({
+        url: 'index.php?route=catalog/manufacturer/autocomplete&user_token={{ user_token }}&filter_name=' +
+          encodeURIComponent(request),
+        dataType: 'json',
+        success: function (json) {
+          json.unshift({
+            category_id: 0,
+            name: '{{ text_none }}'
+          });
+
+          response($.map(json, function (item) {
+            return {
+              label: item['name'],
+              value: item['manufacturer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function (item) {
+      $('input[name=\'manufacturer\']').val(item['label']);
+      $('input[name=\'man_id\']').val(item['value']);
     }
   });
 </script>
