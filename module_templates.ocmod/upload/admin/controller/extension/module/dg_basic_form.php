@@ -13,8 +13,8 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
         $this->load->model('setting/setting');
         $this->load->model('setting/module');
 		$this->load->model('tool/image');
+		$this->load->model('catalog/product');
 
-		// echo '<pre>'; var_dump($this->request->post); echo '</pre>';
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
 			if (!isset($this->request->get['module_id'])) {
 				$this->model_setting_module->addModule($this->name, $this->request->post);
@@ -24,10 +24,21 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
+			if (isset($this->request->post['save_stay'])) {
+				$this->response->redirect($this->url->link('extension/module/' . $this->name, '&module_id=' . $this->request->get['module_id'] . '&user_token=' . $this->session->data['user_token']));
+			} else {
+				$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
+			}
 		}
 
-		// Errrors reset
+		// Success
+		if (isset($this->session->data['success'])) {
+			$data['alert_success'] = $this->session->data['success'];
+		} else {
+			$data['alert_success'] = false;
+		}
+
+		// Errors reset
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
@@ -90,7 +101,6 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 		if (isset($this->request->get['module_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
 			$module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
 		}
-		// echo '<pre>'; var_dump($module_info); echo '</pre>';
 
 		// Category
 		$data['user_token'] = $this->session->data['user_token'];
@@ -117,7 +127,7 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 		} else if (!empty($module_info)) {
 			$data['path'] = $module_info['path'];	
 		} else {
-			$data['path'] = 0;
+			$data['path'] = false;
 		}
 		if (isset($this->request->post['category'])) {
 			$data['category'] = $this->request->post['category'];
@@ -127,13 +137,35 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$data['category'] = 0;
 		}
 
+		// Products Array Autocomplete
+		$data['products'] = array();
+
+		if (!empty($this->request->post['products'])) {
+			$products = $this->request->post['products'];
+		} elseif (!empty($module_info['products'])) {
+			$products = $module_info['products'];
+		} else {
+			$products = array();
+		}
+		
+		foreach ($products as $product_id) {
+			$product_info = $this->model_catalog_product->getProduct($product_id);
+
+			if ($product_info) {
+				$data['products'][] = array(
+					'product_id' => $product_info['product_id'],
+					'name'       => $product_info['name']
+				);
+			}
+		}
+
 		// Manufacturer Autocomplete
 		if (isset($this->request->post['manufacturer'])) {
 			$data['manufacturer'] = $this->request->post['manufacturer'];
 		} else if (!empty($module_info)) {
 			$data['manufacturer'] = $module_info['manufacturer'];
 		} else {
-			$data['manufacturer'] = 0;
+			$data['manufacturer'] = false;
 		}
 		if (isset($this->request->post['man_id'])) {
 			$data['man_id'] = $this->request->post['man_id'];
@@ -151,8 +183,9 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 		} else {
 			$data['image'] = '';
 		}
-		if (isset($this->request->post['image']) && is_file(DIR_IMAGE . $this->request->post['image'])) {
-			$data['thumb'] = $this->model_tool_image->resize($this->request->post['image'], 100, 100);
+
+		if (!empty($data['image']) && is_file(DIR_IMAGE . $data['image'])) {
+			$data['thumb'] = $this->model_tool_image->resize($data['image'], 100, 100);
 		} else {
 			$data['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 		}
@@ -187,11 +220,11 @@ class ControllerExtensionModuleDGBasicForm extends Controller {
 			$this->error['name'] = $this->language->get('error_name');
 		}
 
-		if (intval($this->request->post['category']) <= 0 && empty($this->model_catalog_category->getCategory(intval($this->request->post['category'])))) {
+		if (!empty($this->request->post['category']) && intval($this->request->post['category']) <= 0 && empty($this->model_catalog_category->getCategory(intval($this->request->post['category'])))) {
 			$this->error['category'] = $this->language->get('error_category');
 		}
 
-		if (intval($this->request->post['man_id']) <= 0 && empty($this->model_catalog_manufacturer->getManufacturer(intval($this->request->post['man_id'])))) {
+		if (!empty($this->request->post['man_id']) && intval($this->request->post['man_id']) <= 0 && empty($this->model_catalog_manufacturer->getManufacturer(intval($this->request->post['man_id'])))) {
 			$this->error['manufacturer'] = $this->language->get('error_manufacturer');
 		}
 

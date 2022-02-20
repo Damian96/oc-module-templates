@@ -1,0 +1,26 @@
+{
+  "name": "oc-module-templates",
+  "version": "1.0.0",
+  "description": "A collection of module templates for Opencart",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Damian96/oc-module-templates.git"
+  },
+  "author": "Damian96",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Damian96/oc-module-templates/issues"
+  },
+  "homepage": "https://github.com/Damian96/oc-module-templates#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-rename": "^2.0.0"
+  },
+  "dependencies": {
+    "path": "^0.12.7"
+  }
+}
