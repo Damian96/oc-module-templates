@@ -1,2 +1,5 @@
 # oc-module-templates
-A collection of module templates for Opencart
+A collection of module template fields for Opencart
+
+# LICENSE
+MIT
